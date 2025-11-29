@@ -1,3 +1,5 @@
+# Deployment resource for the weather app.
+# Contains replica count (or managed by HPA), image, resources and health probes.
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -5,7 +7,7 @@ metadata:
   labels:
     {{- include "weather-chart.labels" . | nindent 4 }}
 spec:
-  # Якщо HPA вимкнено - беремо фіксовану кількість, інакше ігноруємо (HPA керує)
+  # If autoscaling is disabled, use the replica count from values
   {{- if not .Values.autoscaling.enabled }}
   replicas: {{ .Values.replicaCount }}
   {{- end }}
@@ -19,18 +21,24 @@ spec:
     spec:
       containers:
         - name: {{ .Chart.Name }}
+          # Container image and version
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          # Image pull policy controls whether image is pulled every time.
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
+            # Container port exposure
             - name: http
               containerPort: 80
               protocol: TCP
           resources:
+            # CPU and memory resources requested and limited for the container
             {{- toYaml .Values.resources | nindent 12 }}
+          # Liveness probe: determines whether the container is alive
           livenessProbe:
             httpGet:
               path: /
               port: http
+          # Readiness probe: determines whether the container is ready to serve traffic
           readinessProbe:
             httpGet:
               path: /

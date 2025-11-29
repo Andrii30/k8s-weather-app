@@ -1,0 +1,26 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: weather-app       # Name of the application in ArgoCD
+  namespace: argocd       # Namespace where ArgoCD is installed
+spec:
+  project: default
+  
+  # Source repository settings
+  source:
+    repoURL: https://github.com/Andrii30/k8s-weather-app.git
+    targetRevision: HEAD  # Revision/branch to use (HEAD/main/tag)
+    path: weather-chart   # Path inside the repository for the Helm chart
+  
+  # Destination cluster and namespace
+  destination:
+    server: https://kubernetes.default.svc # Kubernetes API server for the cluster
+    namespace: weather-prod                # Namespace where the app will be deployed (ArgoCD may create it)
+  
+  # Sync policy: automation and behavior for synchronization
+  syncPolicy:
+    automated:
+      prune: true       # Remove resources deleted from Git
+      selfHeal: true    # Revert manual changes in the cluster to match Git
+    syncOptions:
+      - CreateNamespace=true # Allow ArgoCD to create namespaces

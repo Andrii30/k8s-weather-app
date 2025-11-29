@@ -1,4 +1,6 @@
+# Ingress resource for the weather app - maps HTTP host/path to the Service.
 {{- if .Values.ingress.enabled -}}
+# Ingress: expose the service via HTTP host(s). Use `ingress.enabled` in values to toggle this.
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
@@ -6,15 +8,19 @@ metadata:
   labels:
     {{- include "weather-chart.labels" . | nindent 4 }}
 spec:
+  # The ingress class to use (e.g., nginx) - configured in values
   ingressClassName: {{ .Values.ingress.className }}
+  # Ingress rules - hostnames and associated path routing
   rules:
     {{- range .Values.ingress.hosts }}
     - host: {{ .host | quote }}
       http:
+        # List of path rules for the host - each entry defines a path and backend
         paths:
           {{- range .paths }}
           - path: {{ .path }}
             pathType: {{ .pathType }}
+            # Backend Service and port that the path should route to
             backend:
               service:
                 name: {{ include "weather-chart.fullname" $ }}

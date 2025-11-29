@@ -1,39 +1,61 @@
-# 1. Налаштування кількості
+# 1. Replica configuration
+# Number of replicas to run when HorizontalPodAutoscaler is disabled
 replicaCount: 1
 
-# 2. Образ
+# 2. Image
+# Image used for the application container
 image:
+  # Container image repository/name (e.g. nginx:1.19)
   repository: nginxdemos/hello
+  # Image pull policy (Always, IfNotPresent, Never)
   pullPolicy: IfNotPresent
+  # Tag (version) of the image. If not set, defaults to chart.AppVersion.
   tag: "latest"
 
-# 3. Сервіс
+# 3. Service
+# Service exposes the pods on a Kubernetes Service
 service:
+  # Type of service (ClusterIP, NodePort, LoadBalancer)
   type: ClusterIP
+  # External port the Service listens on
   port: 80
 
-# 4. Ingress (Вхід)
+# 4. Ingress configuration
+# Configure Ingress to expose the Service externally
 ingress:
+  # Enable/disable Ingress creation
   enabled: true
-  className: "nginx"     # <--- ВАЖЛИВО для Minikube
+  # Ingress class name to use (e.g., nginx)
+  className: "nginx"
+  # Hosts and paths for routing HTTP traffic
   hosts:
-    - host: weather.local  # <--- ВАЖЛИВО! Наш домен
+    - host: weather.local
       paths:
         - path: /
+          # Path type for the Ingress rule (Prefix or Exact)
           pathType: Prefix
 
-# 5. Ресурси (ВАЖЛИВО для HPA!)
+
 resources: 
+  # Resource requests and limits for the container
   requests:
-    cpu: 10m      # Ставимо 10m (0.01 ядра), щоб легко тригерити скейлінг
+    # CPU request (cores). Example: 50m = 0.05 core
+    cpu: 10m   
+    # Memory request (Mi or Gi)
     memory: 64Mi
   limits:
+    # CPU limit
     cpu: 100m
+    # Memory limit
     memory: 128Mi
 
-# 6. Автоскейлінг
+
 autoscaling:
+  # Enable Horizontal Pod Autoscaler (HPA)
   enabled: true
+  # Minimum number of replicas when HPA is enabled
   minReplicas: 1
+  # Maximum number of replicas when HPA is enabled
   maxReplicas: 5
+  # Target average CPU utilization (percentage) for the HPA
   targetCPUUtilizationPercentage: 50
