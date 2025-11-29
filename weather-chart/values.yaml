@@ -1,0 +1,39 @@
+# 1. Налаштування кількості
+replicaCount: 1
+
+# 2. Образ
+image:
+  repository: nginxdemos/hello
+  pullPolicy: IfNotPresent
+  tag: "latest"
+
+# 3. Сервіс
+service:
+  type: ClusterIP
+  port: 80
+
+# 4. Ingress (Вхід)
+ingress:
+  enabled: true
+  className: "nginx"     # <--- ВАЖЛИВО для Minikube
+  hosts:
+    - host: weather.local  # <--- ВАЖЛИВО! Наш домен
+      paths:
+        - path: /
+          pathType: Prefix
+
+# 5. Ресурси (ВАЖЛИВО для HPA!)
+resources: 
+  requests:
+    cpu: 10m      # Ставимо 10m (0.01 ядра), щоб легко тригерити скейлінг
+    memory: 64Mi
+  limits:
+    cpu: 100m
+    memory: 128Mi
+
+# 6. Автоскейлінг
+autoscaling:
+  enabled: true
+  minReplicas: 1
+  maxReplicas: 5
+  targetCPUUtilizationPercentage: 50
