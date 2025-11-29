@@ -1,0 +1,37 @@
+{{- if .Values.ingress.enabled -}}
+=======================================================================
+ACCESSING THE WEATHER APP
+-----------------------------------------------------------------------
+You can access your application through the configured Ingress host(s):
+
+{{- range .Values.ingress.hosts }}
+  * Host: {{ .host }}
+    Path(s):
+    {{- range .paths }}
+      - {{ .path }} (type: {{ .pathType }})
+    {{- end }}
+
+{{- end }}
+Make sure your DNS or /etc/hosts contains the host values and points to your cluster ingress controller IP.
+=======================================================================
+{{- else -}}
+=======================================================================
+ACCESSING THE WEATHER APP
+-----------------------------------------------------------------------
+Ingress is disabled for this release. Use one of the following:
+
+# Port-forward from the Service:
+  kubectl -n {{ .Release.Namespace }} port-forward svc/{{ include "weather-chart.fullname" . }} 8080:80
+  # Now open http://localhost:8080
+
+# Or check the Service type and external IP:
+  kubectl -n {{ .Release.Namespace }} get svc {{ include "weather-chart.fullname" . }}
+=======================================================================
+{{- end }}
+
+Helpful kubectl commands (example):
+  kubectl -n {{ .Release.Namespace }} get all
+  kubectl -n {{ .Release.Namespace }} describe deploy {{ include "weather-chart.fullname" . }}
+  kubectl -n {{ .Release.Namespace }} logs deploy/{{ include "weather-chart.fullname" . }}
+
+If you installed this chart with ArgoCD, open the ArgoCD UI and sync the `weather-app` application or check the application details.
