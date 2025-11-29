@@ -6,7 +6,7 @@ replicaCount: 1
 # Image used for the application container
 image:
   # Container image repository/name (e.g. nginx:1.19)
-  repository: lcarando/2048
+  repository: cnrock/2048
   # Image pull policy (Always, IfNotPresent, Never)
   pullPolicy: IfNotPresent
   # Tag (version) of the image. If not set, defaults to chart.AppVersion.
